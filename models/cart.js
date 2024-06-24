@@ -25,7 +25,7 @@ cartSchema.statics.addItem = async function(userId,groupId,period) {
         throw Error('العنصر موجود في العربة بالفعل!')
     }
 
-    const { name,price,periods,groupChatId,lifeTimePrice,isLifeTime,groupImageUrl,isLocked,description } = await groupsModel.findOne({_id:groupId})
+    const { name,price,periods,groupChatIds,lifeTimePrice,isLifeTime,groupImageUrl,isLocked,description } = await groupsModel.findOne({_id:groupId})
 
     const newItem = await this.create({userId,groupId,period})
 
@@ -33,14 +33,14 @@ cartSchema.statics.addItem = async function(userId,groupId,period) {
         return {...newItem._doc,name,price,periods,period,
             periodName:'مدى الحياة',
             periodPrice:lifeTimePrice,
-            isLifeTime,groupImageUrl,isLocked,description,groupChatId
+            isLifeTime,groupImageUrl,isLocked,description,groupChatIds
         }
     }else {
         return {...newItem._doc,name,price,periods,period,
             periodName:periods[period].periodName,
             periodPrice:periods[period].periodPrice,
             periodInDays:periods[period].periodInDays,
-            isLifeTime,groupImageUrl,isLocked,description,groupChatId
+            isLifeTime,groupImageUrl,isLocked,description,groupChatIds
         }
     }
 }
@@ -53,20 +53,20 @@ cartSchema.statics.changePeriod = async function(userId,groupId,newPeriod) {
     }
 
     const updatedItem = await this.findOneAndUpdate({_id:exists._id},{period:newPeriod})
-    const { name,groupChatId,price,periods,isLifeTime,groupImageUrl,isLocked,description } = await groupsModel.findOne({_id:groupId})
+    const { name,groupChatIds,price,periods,isLifeTime,groupImageUrl,isLocked,description } = await groupsModel.findOne({_id:groupId})
 
     if(isLifeTime){
         return {...updatedItem._doc,name,price,periods,period:newPeriod,
             periodName:'مدى الحياة',
             periodPrice:lifeTimePrice,
-            isLifeTime,groupImageUrl,isLocked,description,groupChatId
+            isLifeTime,groupImageUrl,isLocked,description,groupChatIds
         }
     }else {
         return {...updatedItem._doc,name,price,periods,period:newPeriod,
             periodName:periods[newPeriod].periodName,
             periodPrice:periods[newPeriod].periodPrice,
             periodInDays:periods[newPeriod].periodInDays,
-            isLifeTime,groupImageUrl,isLocked,description,groupChatId
+            isLifeTime,groupImageUrl,isLocked,description,groupChatIds
         }
     }
 }
@@ -96,8 +96,8 @@ cartSchema.statics.getUserCartItems = async function(userId) {
     let allItems = {}
     const fetchedItems = await groupsModel.find();
     fetchedItems.forEach(e=>{
-        const {_id,name,groupChatId,lifeTimePrice,periods,isLifeTime,groupImageUrl,isLocked,description} = e
-        allItems[_id] = {name,groupChatId,lifeTimePrice,periods,isLifeTime,groupImageUrl,isLocked,description}
+        const {_id,name,groupChatIds,lifeTimePrice,periods,isLifeTime,groupImageUrl,isLocked,description} = e
+        allItems[_id] = {name,groupChatIds,lifeTimePrice,periods,isLifeTime,groupImageUrl,isLocked,description}
     })
 
     const result = itemsIds.map(e=>{
@@ -106,7 +106,7 @@ cartSchema.statics.getUserCartItems = async function(userId) {
                 _id:e._id,
                 groupId:e.groupId,
                 period:e.period,
-                groupChatId:e.groupChatId,
+                groupChatIds:e.groupChatIds,
                 periodName:'مدى الحياة',
                 periodPrice:allItems[e.groupId].lifeTimePrice,
                 ...allItems[e.groupId]
@@ -116,7 +116,7 @@ cartSchema.statics.getUserCartItems = async function(userId) {
                 _id:e._id,
                 groupId:e.groupId,
                 period:e.period,
-                groupChatId:e.groupChatId,
+                groupChatIds:e.groupChatIds,
                 periodName:allItems[e.groupId].periods[e.period].periodName,
                 periodPrice:allItems[e.groupId].periods[e.period].periodPrice,
                 periodInDays:allItems[e.groupId].periods[e.period].periodInDays,

@@ -167,7 +167,8 @@ const telegramBot = () => {
         const chatId = message.chat.id;
         const { id,is_bot } = message.new_chat_members[0];
         if(!is_bot){
-            const isUserSubscribed = await subscriptionModel.findOne({groupChatId:chatId,userTelegramId:id,isEnded:false})
+            const usersSubs = await subscriptionModel.find({userTelegramId:id,isEnded:false})
+            const isUserSubscribed = usersSubs.filter(e => e.groupChatIds.includes(chatId)).length > 0
             if(!isUserSubscribed){
                 await bot.banChatMember(chatId,id)
             }

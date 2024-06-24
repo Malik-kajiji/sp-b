@@ -17,7 +17,7 @@ const getPendingOrders = async (req,res) => {
 const acceptOrder = async (req,res) => {
     const { _id } = req.body
     try {
-        const order = await requestModel.acceptOrder(_id)
+        const order = await requestModel.findById(_id)
 
         const { telegramChatId,userName,phoneNumber,userTelegramId,userTelegramUsername } = await userModel.findOne({_id:order.userId})
         for(let i = 0; i<order.groupsIds.length;i++){
@@ -31,6 +31,7 @@ const acceptOrder = async (req,res) => {
                 await handleAddUser(telegramChatId,groupChatIds,userTelegramId,userTelegramUsername,name,new Date(endDate).toLocaleDateString(),phoneNumber)
             }
         }
+        await requestModel.acceptOrder(_id)
         await profitsModel.increaseProfits(order.totalPrice,order.groupsIds.length)
 
         res.status(200).json({order})

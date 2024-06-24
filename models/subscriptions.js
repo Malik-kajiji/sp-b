@@ -32,7 +32,7 @@ const subscriptionSchema = new schema({
         required:true,
     },
     groupChatIds: {
-        type:String,
+        type:Array,
         required:true,
     },
     startDate: {
